@@ -37,3 +37,40 @@ First, you will need to login using the temporary admin password, which you can 
 Then, select Install suggested plugins and wait for the plugins to finish installing.
 
 Finally, you will need to fill out a form to create credentials for the first admin user.
+
+## Installing and Running Jenkins on Docker (Ubunt)
+
+sudo apt install -y docker.io
+
+$sudo usermod -aG docker ckhanyil
+
+$docker network create jenkins
+fa912fb34729d66252fdd09e959340be23f2a914db17619eece04a35591cee17
+
+$sudo docker volume create jenkins-docker-certs
+jenkins-docker-certs
+
+$sudo docker volume create jenkins-data
+jenkins-data
+
+$sudo docker run \
+   --name jenkins-docker \
+   --rm \
+   --detach \
+   --privileged \
+   --network jenkins \
+   --network-alias docker \
+   --env DOCKER_TLS_CERTDIR=/certs \
+   --volume jenkins-docker-certs:/certs/client \
+   --volume jenkins-data:/var/jenkins_home \
+   --publish 2376:2376 \
+   docker:dind \
+   --storage-driver overlay2
+
+sudo docker container run --name jenkins-blueocean \
+--network jenkins --env DOCKER_HOST=tcp://2376 \
+--env DOCKER_CERT_PATH=/certs/client --env DOCKER_TLS_VERIFY=1 \
+--volume jenkins-data:/var/jenkins_home/ \
+--volume jenkins-docker-certs:/certs/client:ro \
+--publish 8080:8080 --publish 50000:50000 jenkinsci/blueocean
+
